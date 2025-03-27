@@ -1,0 +1,12 @@
+# Dependencias de Node.js
+node_modules/
+
+# Configuración de entorno
+.env
+
+# Archivos compilados de TypeScript
+dist/
+
+# Logs y caché
+npm-debug.log
+yarn-debug.log
