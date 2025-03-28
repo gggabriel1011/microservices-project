@@ -62,6 +62,17 @@ const deleteProfile = async (req: Request, res: Response): Promise<Response> => 
   }
 };
 
+const listProfiles = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const profiles = await Profile.find();
+
+    return res.status(200).json({ profiles });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
+
 export default createProfile;
 export { updateProfile };
 export { deleteProfile };
+export { listProfiles };
