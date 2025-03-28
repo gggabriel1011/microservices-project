@@ -42,5 +42,26 @@ const updateProfile = async (req: Request, res: Response): Promise<Response> => 
   }
 };
 
+const deleteProfile = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { id } = req.body;
+    
+    if (!id) {
+      return res.status(400).json({ message: "ID is required"})
+    }
+
+    const deleted = await Profile.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Profile not found"});
+    }
+
+    return res.status(200).json({ message: "Profile deleted successfully", profile: deleteProfile });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
+
 export default createProfile;
 export { updateProfile };
+export { deleteProfile };
