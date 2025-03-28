@@ -1,5 +1,32 @@
 import { Request, Response } from "express";
 import Profile from "../models/profile.model";
+import jwt from "jsonwebtoken";
+
+
+const validateProfile = async (req: Request, res: Response): Promise<Response> => {
+  const { id } = req.body;
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token missing" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+
+    if (decoded.id !== id) {
+      return res.status(403).json({ message: "Token ID doesnt match request ID" });
+    }
+
+    return res.status(200).json({ message: "Token is valid and ID matches" });
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+
 
 const createProfile = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -12,7 +39,12 @@ const createProfile = async (req: Request, res: Response): Promise<Response> => 
     const newProfile = new Profile({ name, lastName, cellphone, email, address });
     await newProfile.save();
 
-    return res.status(201).json({ message: "Profile created", id: newProfile._id });
+    const token = jwt.sign({ id: newProfile._id }, process.env.JWT_SECRET as string, {
+      expiresIn: "1h", 
+    });
+
+    return res.status(201).json({ message: "Profile created", id: newProfile._id, token });
+
   } catch (error) {
     return res.status(500).json({ message: "Server error", error });
   }
@@ -76,3 +108,4 @@ export default createProfile;
 export { updateProfile };
 export { deleteProfile };
 export { listProfiles };
+export { validateProfile };
