@@ -5,6 +5,8 @@ import profileRoutes from "./routes/profile.routes";
 
 import { verifyBasicAuth } from "./middleware/basicAuth.middleware";
 
+import { connectDB } from "./config/database";
+
 import type { RequestHandler } from "express";
 
 dotenv.config();
@@ -17,11 +19,9 @@ app.use(verifyBasicAuth as RequestHandler);
 
 app.use("/api", profileRoutes);
 
-mongoose
-  .connect(process.env.MONGO_URI as string)
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`MS-PROFILE running on http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => console.error(err));
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`MS-PROFILE running on http://localhost:${PORT}`);
+  });
+});
+
