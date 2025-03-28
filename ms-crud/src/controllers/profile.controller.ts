@@ -4,25 +4,22 @@ import jwt from "jsonwebtoken";
 
 
 const validateProfile = async (req: Request, res: Response): Promise<Response> => {
-  const { id } = req.body;
-  const authHeader = req.headers.authorization;
+  const { id, token } = req.body;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Token missing" });
+  if (!id || !token) {
+    return res.status(400).json({ message: "ID and token are required" });
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
 
     if (decoded.id !== id) {
-      return res.status(403).json({ message: "Token ID doesnt match request ID" });
+      return res.status(403).json({ message: "Token doesnt match the request ID" });
     }
 
-    return res.status(200).json({ message: "Token is valid and ID matches" });
+    return res.status(200).json({ message: "Token is valid and matches the profile ID" });
   } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid token", error });
   }
 };
 
