@@ -3,6 +3,9 @@ node_modules/
 
 # Configuración de entorno
 .env
+cert.key
+cert.pem
+
 
 # Archivos compilados de TypeScript
 dist/
