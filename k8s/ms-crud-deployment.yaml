@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-crud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-crud
+  template:
+    metadata:
+      labels:
+        app: ms-crud
+    spec:
+      containers:
+      - name: ms-crud
+        image: ms-crud
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4002
+        envFrom:
+        - secretRef:
+            name: mongo-credentials
