@@ -1,4 +1,5 @@
-version: '3.8'
+
+version: "3.8"
 
 services:
   mongodb:
@@ -6,11 +7,37 @@ services:
     container_name: mongodb_microservices
     ports:
       - "27017:27017"
+    restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: gggabriel1011
       MONGO_INITDB_ROOT_PASSWORD: 102101GabrielGg
     volumes:
       - mongo_data:/data/db
+
+  ms-crud:
+    build: ./ms-crud
+    container_name: ms_crud
+    ports:
+      - "4002:4002"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://gggabriel1011:102101GabrielGg@mongodb:27017/microservices?authSource=admin
+      - JWT_SECRET=secretkey
+      - BASIC_AUTH_USER=admin
+      - BASIC_AUTH_PASS=1234
+
+  ms-profile:
+    build: ./ms-profile
+    container_name: ms_profile
+    ports:
+      - "4001:4001"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://gggabriel1011:102101GabrielGg@mongodb:27017/microservices?authSource=admin
+      - BASIC_AUTH_USER=admin
+      - BASIC_AUTH_PASS=1234
 
 volumes:
   mongo_data:
