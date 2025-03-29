@@ -9,6 +9,14 @@ import { connectDB } from "./config/database";
 
 import type { RequestHandler } from "express";
 
+import https from "https";
+import fs from "fs";
+
+const sslOptions = {
+  key: fs.readFileSync("cert.key"),
+  cert: fs.readFileSync("cert.pem")
+};
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -20,8 +28,10 @@ app.use(verifyBasicAuth as RequestHandler);
 app.use("/api", profileRoutes);
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`MS-PROFILE running on http://localhost:${PORT}`);
+  https.createServer(sslOptions, app).listen(PORT, () => {
+    console.log(`MS-PROFILE running on https://localhost:${PORT}`);
   });
+}).catch((err) => {
+  console.error("Error connecting to MongoDB:", err);
 });
 
