@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// MongoDB main structure
 const ProfileSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -22,7 +23,9 @@ const ProfileSchema = new mongoose.Schema({
     required: true,
   }
 }, {
-  timestamps: true // Agrega createdAt y updatedAt automáticamente
+  // Automatically include createdAt and updatedAt timestamps
+  timestamps: true
 });
 
+// Export the Profile model to be used in other parts of the app
 export default mongoose.model("Profile", ProfileSchema);
