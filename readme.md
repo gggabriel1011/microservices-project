@@ -1,4 +1,4 @@
-# Microservices Project: CRUD + Profile with Security and Kubernetes
+# Microservices Project
 
 ## 🔖 Overview
 
