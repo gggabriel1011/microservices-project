@@ -39,7 +39,43 @@ export const validateProfile = async (req: Request, res: Response): Promise<Resp
  */
 export const createProfile = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { name, lastName, cellphone, email, address } = req.body;
+    const data = req.body;
+
+    // Handle multiple profile creation
+    if (Array.isArray(data)) {
+      if (!data.length) {
+        return res.status(400).json({ message: "Empty array received" });
+      }
+
+      // Validate all profiles fields in the array
+      const invalid = data.find(p => !p.name || !p.lastName || !p.cellphone || !p.email || !p.address);
+      if (invalid) {
+        return res.status(400).json({ message: "All fields are required for each profile" });
+      }
+
+      // Insert profiles into DB
+      const createdProfiles = await Profile.insertMany(data);
+
+      // Generate token for each one
+      const results = createdProfiles.map(profile => {
+        const token = jwt.sign({ id: profile._id }, process.env.JWT_SECRET as string, {
+          expiresIn: "1h",
+        });
+        return {
+          id: profile._id,
+          token
+        };
+      });
+
+      return res.status(201).json({
+        message: "Profiles created successfully",
+        count: createdProfiles.length,
+        profiles: results
+      });
+    }
+
+    // Handle single profile creation
+    const { name, lastName, cellphone, email, address } = data;
 
     // Check if all required fields are present
     if (!name || !lastName || !cellphone || !email || !address) {
@@ -52,11 +88,15 @@ export const createProfile = async (req: Request, res: Response): Promise<Respon
 
     // Generate a JWT token that contains the profile's ID
     const token = jwt.sign({ id: newProfile._id }, process.env.JWT_SECRET as string, {
-      expiresIn: "1h", // Token expires in 1 hour
+      expiresIn: "1h",
     });
 
     // Return profile ID and generated token
-    return res.status(201).json({ message: "Profile created", id: newProfile._id, token });
+    return res.status(201).json({
+      message: "Profile created",
+      id: newProfile._id,
+      token,
+    });
 
   } catch (error) {
     // Catch unexpected server errors
